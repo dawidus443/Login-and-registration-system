@@ -3,8 +3,6 @@ package com.example.Login_and_registration_system.registration;
 import com.example.Login_and_registration_system.appuser.AppUser;
 import com.example.Login_and_registration_system.appuser.AppUserRole;
 import com.example.Login_and_registration_system.appuser.AppUserService;
-import com.example.Login_and_registration_system.appuser.AppUserRepository;
-import com.example.Login_and_registration_system.email.EmailSender;
 import com.example.Login_and_registration_system.registration.token.ConfirmationToken;
 import com.example.Login_and_registration_system.registration.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
@@ -19,7 +17,6 @@ public class RegistrationService {
     private final AppUserService appUserService;
     private final EmailValidator emailValidator;
     private final ConfirmationTokenService confirmationTokenService;
-    private final EmailSender emailSender;
 
     public String register(RegistrationRequest request) {
         boolean isValidEmail = emailValidator
