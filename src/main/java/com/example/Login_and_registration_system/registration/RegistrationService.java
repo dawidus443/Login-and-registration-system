@@ -3,8 +3,14 @@ package com.example.Login_and_registration_system.registration;
 import com.example.Login_and_registration_system.appuser.AppUser;
 import com.example.Login_and_registration_system.appuser.AppUserRole;
 import com.example.Login_and_registration_system.appuser.AppUserService;
+import com.example.Login_and_registration_system.appuser.AppUserRepository;
+import com.example.Login_and_registration_system.email.EmailSender;
+import com.example.Login_and_registration_system.registration.token.ConfirmationToken;
+import com.example.Login_and_registration_system.registration.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -12,6 +18,8 @@ public class RegistrationService {
 
     private final AppUserService appUserService;
     private final EmailValidator emailValidator;
+    private final ConfirmationTokenService confirmationTokenService;
+    private final EmailSender emailSender;
 
     public String register(RegistrationRequest request) {
         boolean isValidEmail = emailValidator
@@ -30,4 +38,27 @@ public class RegistrationService {
                 )
         );
     }
+    @Transactional
+    public String confirmToken(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenService
+                .getToken(token)
+                .orElseThrow(() ->
+                        new IllegalStateException("token not found"));
+
+        if (confirmationToken.getConfirmedAt() != null) {
+            throw new IllegalStateException("email already confirmed");
+        }
+
+        LocalDateTime expiredAt = confirmationToken.getExpiresAt();
+
+        if (expiredAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("token expired");
+        }
+
+        confirmationTokenService.setConfirmedAt(token);
+        appUserService.enableAppUser(
+                confirmationToken.getAppUser().getEmail());
+        return "confirmed";
+    }
+
 }
