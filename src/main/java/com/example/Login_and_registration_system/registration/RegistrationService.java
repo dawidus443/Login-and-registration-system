@@ -35,6 +35,7 @@ public class RegistrationService {
                 )
         );
     }
+
     @Transactional
     public String confirmToken(String token) {
         ConfirmationToken confirmationToken = confirmationTokenService
